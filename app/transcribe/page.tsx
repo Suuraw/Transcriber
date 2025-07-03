@@ -39,12 +39,16 @@ export default function TranscribePage() {
   const handleTranscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log(new Date().getSeconds().toLocaleString());
 
     try {
-      const res = await fetch("/api/transcript", {
+      const res = await fetch("http://127.0.0.1:8000/transcript", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: youtubeUrl }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`, // secure token
+        },
+        body: JSON.stringify({ videoId: extractVideoId(youtubeUrl) }), // backend expects videoId
       });
 
       const data = await res.json();
@@ -53,11 +57,11 @@ export default function TranscribePage() {
         setTranscription(
           `TRANSCRIPTION COMPLETE\n\nVideo: ${youtubeUrl}\n\n${data.transcript}`
         );
-        setShowPanel(true);
       } else {
         setTranscription(`Error: ${data.error}`);
-        setShowPanel(true);
       }
+
+      setShowPanel(true);
     } catch (err) {
       setTranscription("An unexpected error occurred.");
       setShowPanel(true);
@@ -65,6 +69,12 @@ export default function TranscribePage() {
       setIsLoading(false);
     }
   };
+  function extractVideoId(url: string): string | null {
+    const match = url.match(
+      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/
+    );
+    return match?.[1] || null;
+  }
 
   const handleCopy = async () => {
     try {
