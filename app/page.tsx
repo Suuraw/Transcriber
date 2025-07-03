@@ -1,7 +1,24 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function Page() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const auth = localStorage.getItem("devAuth");
+      setIsAuthenticated(auth === "true");
+    }
+  }, []);
+
+  const handleNavigation = () => {
+    router.push(isAuthenticated ? "/transcribe" : "/login");
+  };
+
   return (
     <div className="min-h-screen bg-[#f8f8f8]">
       <header className="flex items-center justify-between p-4 md:p-6">
@@ -10,12 +27,12 @@ export default function Page() {
           <div className="h-2 w-2 rounded-full bg-black"></div>
         </div>
         <div className="flex items-center space-x-4 md:space-x-6">
-          <Link
-            href="/login"
+          <button
+            onClick={handleNavigation}
             className="text-xs md:text-sm hover:underline transition-all duration-300 hover:scale-105"
           >
-            GET IN
-          </Link>
+            {isAuthenticated ? "TRANSCRIBE" : "GET IN"}
+          </button>
           <button className="flex flex-col space-y-1 hover:scale-110 transition-transform duration-300">
             <span className="h-0.5 w-4 md:w-6 bg-black"></span>
             <span className="h-0.5 w-4 md:w-6 bg-black"></span>
@@ -36,7 +53,9 @@ export default function Page() {
             <br />
             <span className="inline-block animate-pulse">TRANSCRIPTION</span>
             <br />
-            <span className="inline-block animate-bounce-slow animation-delay-300">MAGIC.</span>
+            <span className="inline-block animate-bounce-slow animation-delay-300">
+              MAGIC.
+            </span>
           </h1>
 
           <div className="mt-16 md:mt-24 flex flex-col md:flex-row justify-between space-y-8 md:space-y-0 animate-slide-up">
@@ -71,5 +90,5 @@ export default function Page() {
         </div>
       </main>
     </div>
-  )
+  );
 }

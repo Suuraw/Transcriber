@@ -15,6 +15,7 @@ Make sure you have Node.js installed on your machine (version 18 or higher).
 2. **Install dependencies**
    \`\`\`bash
    npm install
+   pip install youtube-transcript-api
    \`\`\`
 
 3. **Run the development server**
@@ -33,21 +34,21 @@ Make sure you have Node.js installed on your machine (version 18 or higher).
 
 \`\`\`
 ├── app/
-│   ├── globals.css
-│   ├── layout.tsx
-│   ├── page.tsx
-│   ├── login/
-│   │   └── page.tsx
-│   └── transcribe/
-│       └── page.tsx
+│ ├── globals.css
+│ ├── layout.tsx
+│ ├── page.tsx
+│ ├── login/
+│ │ └── page.tsx
+│ └── transcribe/
+│ └── page.tsx
 ├── components/
-│   └── ui/
-│       ├── button.tsx
-│       ├── input.tsx
-│       ├── textarea.tsx
-│       └── card.tsx
+│ └── ui/
+│ ├── button.tsx
+│ ├── input.tsx
+│ ├── textarea.tsx
+│ └── card.tsx
 ├── lib/
-│   └── utils.ts
+│ └── utils.ts
 └── ...config files
 \`\`\`
 
@@ -77,6 +78,7 @@ Make sure you have Node.js installed on your machine (version 18 or higher).
 ## 📝 Notes
 
 This is a personal tool template. To add real transcription functionality, you'll need to integrate with:
+
 - YouTube Data API
 - OpenAI Whisper API or similar transcription service
 - Proper authentication system
