@@ -13,7 +13,7 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "iamthedeveloper123") {
+    if (password === process.env.NEXT_PUBLIC_PASSWORD) {
       localStorage.setItem("devAuth", "true");
       window.location.href = "/transcribe";
     } else {
