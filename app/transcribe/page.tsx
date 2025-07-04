@@ -4,9 +4,10 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-// import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
-import { X, Copy, Trash2, CheckCircle } from "lucide-react";
+import MagicSparkleLoader from "@/components/ui/sparkles";
+
+import { X, Copy, Sparkles, Trash2, CheckCircle } from "lucide-react";
 
 export default function TranscribePage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -15,7 +16,8 @@ export default function TranscribePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [showPanel, setShowPanel] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const [isSummarized, setSummarizedStatus] = useState(false);
 
   useEffect(() => {
     const auth = localStorage.getItem("devAuth");
@@ -39,16 +41,14 @@ export default function TranscribePage() {
   const handleTranscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log(new Date().getSeconds().toLocaleString());
-
     try {
       const res = await fetch("http://127.0.0.1:8000/transcript", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`, // secure token
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
         },
-        body: JSON.stringify({ videoId: extractVideoId(youtubeUrl) }), // backend expects videoId
+        body: JSON.stringify({ videoId: extractVideoId(youtubeUrl) }),
       });
 
       const data = await res.json();
@@ -69,6 +69,7 @@ export default function TranscribePage() {
       setIsLoading(false);
     }
   };
+
   function extractVideoId(url: string): string | null {
     const match = url.match(
       /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/
@@ -91,23 +92,40 @@ export default function TranscribePage() {
     window.location.href = "/";
   };
 
-  const handleClear = () => {
-    if (isClosing) return;
-    setIsClosing(true);
-    setShowPanel(false);
-    setTimeout(() => {
-      setTranscription("");
-      setIsClosing(false);
-    }, 2000);
-  };
+  const handleAISummarize = async () => {
+    if (!transcription) return;
+    if (isSummarized) return;
 
+    try {
+      setIsSummarizing(true);
+
+      const response = await fetch("http://localhost:8000/summarize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`, // 🔁 replace with your actual token
+        },
+        body: JSON.stringify({ transcript: transcription }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to summarize.");
+      }
+
+      setTranscription(`SUMMARIZED OUTPUT:\n\n${data.summary}`);
+      setSummarizedStatus(true);
+    } catch (error) {
+      console.error("Error summarizing:", error);
+      setTranscription("Failed to generate summary.");
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
   const handleClosePanel = () => {
-    if (isClosing) return;
-    setIsClosing(true);
     setShowPanel(false);
-    setTimeout(() => {
-      setIsClosing(false);
-    }, 2000);
+    setSummarizedStatus(false);
   };
 
   if (!isAuthenticated) {
@@ -119,8 +137,8 @@ export default function TranscribePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f8f8]">
-      <header className="flex items-center justify-between p-4 md:p-6 ">
+    <div className="min-h-screen bg-[#f8f8f8] relative">
+      <header className="flex items-center justify-between p-4 md:p-6">
         <Link
           href="/"
           className="flex space-x-2 hover:scale-105 transition-transform duration-300"
@@ -174,7 +192,6 @@ export default function TranscribePage() {
             </Button>
           </form>
 
-          {/* Mobile inline output */}
           {transcription && showPanel && (
             <div className="block md:hidden bg-white rounded-2xl shadow-lg border border-gray-200 p-4">
               <h2 className="text-lg font-semibold text-gray-900 mb-3">
@@ -203,11 +220,12 @@ export default function TranscribePage() {
                   )}
                 </Button>
                 <Button
-                  onClick={handleClear}
+                  onClick={handleAISummarize}
+                  disabled={isSummarizing}
                   className="w-full h-11 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 flex items-center justify-center gap-2"
                 >
-                  <Trash2 className="w-4 h-4" />
-                  Clear
+                  <Sparkles className="w-4 h-4 animate-bounce" />
+                  {isSummarizing ? "Summarizing..." : "AI"}
                 </Button>
               </div>
             </div>
@@ -221,7 +239,6 @@ export default function TranscribePage() {
         </div>
       </main>
 
-      {/* Desktop floating output */}
       {transcription && showPanel && (
         <div className="hidden md:fixed md:inset-0 md:z-50 md:flex md:items-center md:justify-center md:p-4 lg:p-8 md:bg-black md:bg-opacity-20 md:backdrop-blur-sm">
           <div className="w-full max-w-2xl lg:max-w-3xl bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-fade-in">
@@ -263,11 +280,12 @@ export default function TranscribePage() {
                   )}
                 </Button>
                 <Button
-                  onClick={handleClear}
+                  onClick={handleAISummarize}
+                  disabled={isSummarizing}
                   className="flex-1 h-11 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 flex items-center justify-center gap-2"
                 >
-                  <Trash2 className="w-4 h-4" />
-                  Clear
+                  <Sparkles className="w-4 h-4 animate-bounce" />
+                  {isSummarizing ? "Summarizing..." : "AI"}
                 </Button>
               </div>
             </div>
@@ -287,6 +305,8 @@ export default function TranscribePage() {
           </div>
         </div>
       )}
+
+      {isSummarizing && <MagicSparkleLoader isLoading={isSummarizing} />}
     </div>
   );
 }
