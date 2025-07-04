@@ -26,10 +26,6 @@ Make sure you have Node.js installed on your machine (version 18 or higher).
 4. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-### 🔐 Login Credentials
-
-- **Developer Password**: `iamthedeveloper123`
-
 ## 📁 Project Structure
 
 \`\`\`
