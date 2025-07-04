@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react"; // <-- Icon imports
+import { Eye, EyeOff } from "lucide-react"; // Icon imports
 
 export default function LoginPage() {
   const [password, setPassword] = useState("");
@@ -42,24 +42,28 @@ export default function LoginPage() {
               placeholder="Password..."
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full h-12 text-center pr-10 border-0 border-b-2 border-gray-200 rounded-none bg-transparent focus:border-black transition-colors duration-300"
+              className="appearance-none w-full h-12 text-center pr-10 border-0 border-b-2 border-gray-200 rounded-none bg-transparent focus:border-black transition-colors duration-300"
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
-              aria-label={showPassword ? "Hide password" : "Show password"}
-            >
-              {showPassword ? (
-                <EyeOff className="w-4 h-4" />
-              ) : (
-                <Eye className="w-4 h-4" />
-              )}
-            </button>
+
+            {/* Show Eye icon only when typing */}
+            {password.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-400 hover:text-black transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
+            )}
           </div>
 
           {error && (
-            <p className="text-black-500 text-sm text-center animate-bounce">
+            <p className="text-red-500 text-sm text-center animate-bounce">
               {error}
             </p>
           )}

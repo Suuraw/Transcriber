@@ -61,3 +61,13 @@
 .animation-delay-300 {
   animation-delay: 300ms;
 }
+/* Hide native eye icon in WebKit browsers (iOS/Safari/Chrome Mobile) */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+input::-webkit-credentials-auto-fill-button,
+input::-webkit-password-toggle-button {
+  display: none;
+}
